@@ -1,0 +1,14 @@
+{
+  "name": "arduino_server",
+  "version": "1.0.0",
+  "description": "Display Ardino Serial output on web page",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ryan Regier",
+  "license": "ISC",
+  "dependencies": {
+    "serialport": "^6.0.4"
+  }
+}
