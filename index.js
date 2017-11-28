@@ -6,6 +6,10 @@ const fs = require("fs");
 var latestV = "0";
 var buffer = "";
 
+//console.log(process.argv)
+var printVoltage = false;
+if(process.argv[2] === "print") printVoltage = true;
+
 var port = new SerialPort("COM4", {baudRate: 9600});
 /*port.open(function (error){
   if (error) return console.log("Error: " + error.message);
@@ -18,7 +22,7 @@ port.on("readable", function (data){
   for (let i = 0; i < buffer.length; i++){
     if (buffer[i] === "\n"){
       latestV = buffer.substr(0,i);
-      //console.log(latestV);
+      if(printVoltage) console.log(latestV);
       buffer = buffer.substr(i+1,buffer.length);
     }
   }
@@ -46,6 +50,7 @@ const server = http.createServer(function(request, response){
     response.setHeader("Content-Type", "text/plain");
     response.statusCode = 200;
     response.write(String(latestV));
+    //console.log(request.headers);
     response.end();
   }
 });
