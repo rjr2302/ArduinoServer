@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <title>Arduino Serial display</title>
+    <script type="text/javascript">
+      "use strict";
+      var url = "/voltage";
+      var voltage = 0;
+      var lastFive = [0, 0, 0, 0, 0];
+      setInterval(function(){
+        let xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function(){
+          if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+            lastFive.push(xmlHttp.responseText);
+            lastFive.splice(0, 1);
+            let str = lastFive.join(" ");
+            document.getElementById("voltage").innerHTML = str;
+          }
+        };
+
+        xmlHttp.open("GET", url, true);
+        xmlHttp.send(null);
+      }, 1000);
+    </script>
+  </head>
+  <body>
+    <h1>Windmill Voltage</h1>
+    <p id="voltage"></p>
+  </body>
+</html>

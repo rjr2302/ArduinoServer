@@ -3,15 +3,25 @@
 const SerialPort = require("serialport");
 const http = require("http");
 const fs = require("fs");
-var latestV = 0;
+var latestV = "0";
+var buffer = "";
 
-var port = new SerialPort(process.argv[0] || "COM4", {baudRate: 9600});
-port.open(function (error){
+var port = new SerialPort("COM4", {baudRate: 9600});
+/*port.open(function (error){
   if (error) return console.log("Error: " + error.message);
-});
+});*/
 
-port.on("data", function (data){
-  latestV = data;
+port.on("readable", function (data){
+  let read = port.read().toString();
+  //console.log(read);
+  buffer += read;
+  for (let i = 0; i < buffer.length; i++){
+    if (buffer[i] === "\n"){
+      latestV = buffer.substr(0,i);
+      console.log(latestV);
+      buffer = buffer.substr(i+1,buffer.length);
+    }
+  }
 });
 
 const httpPort = 5555;
@@ -35,12 +45,12 @@ const server = http.createServer(function(request, response){
   else if (file === "/voltage") {
     response.setHeader("Content-Type", "text/plain");
     response.statusCode = 200;
-    response.write(latestV);
+    response.write(String(latestV));
     response.end();
   }
 });
 
-server.listen(port, hostname, function(){
-  console.log("Server running at http://" + hostname + ":" + port);
+server.listen(httpPort, "0.0.0.0", function(){
+  console.log("Server running at http://" + hostname + ":" + httpPort);
   console.log(server.address());
 })
