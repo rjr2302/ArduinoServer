@@ -9,6 +9,7 @@
   "author": "Ryan Regier",
   "license": "ISC",
   "dependencies": {
-    "serialport": "^6.0.4"
+    "fs": "0.0.1-security",
+    "serialport": "^6.0.4", "http": "0.0.0"
   }
 }
