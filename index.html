@@ -6,14 +6,68 @@
       var url = "/voltage";
       var voltage = 0;
       var lastFive = [0, 0, 0, 0, 0];
+      var canvas;
+
+      function ready(){
+        canvas = document.getElementById("graph").getContext("2d");
+        canvas.fillStyle = "white";
+        canvas.strokeStyle = "black";
+        canvas.lineWidth = 3;
+      }
+
+      function graph(){
+        canvas.fillRect(0, 0, 510, 510);
+
+        canvas.lineWidth = 3;
+        canvas.beginPath();
+        canvas.moveTo(10, 500-(Number(lastFive[0])*100));
+        for(let i = 1; i < lastFive.length; i++){
+          canvas.lineTo(10+(100*i), 500-((Number(lastFive[i])||0)*100));
+        }
+        canvas.stroke();
+
+        canvas.lineWidth = 1;
+        canvas.beginPath();
+        canvas.moveTo(10, 500);
+        canvas.lineTo(10, 10);
+        canvas.stroke();
+        canvas.beginPath();
+        canvas.moveTo(10, 500);
+        canvas.lineTo(510, 500);
+        canvas.stroke();
+
+        for (let i = 1; i < 5; i++){
+          //canvas.beginPath();
+          let x = 10+(100*i)
+          canvas.moveTo(x, 505);
+          canvas.lineTo(x, 495);
+          canvas.stroke();
+        }
+
+        for (let i = 0; i < 5; i++){
+          let y = 500-(100*i);
+          canvas.moveTo(5, y);
+          canvas.lineTo(15, y);
+          canvas.stroke();
+        }
+      }
+
+      function updateBody(){
+        for (let i = 0; i < 5; i++){
+          document.getElementById("v"+String(4-i)).innerHTML = lastFive[i];
+        }
+        graph();
+      }
+
       setInterval(function(){
         let xmlHttp = new XMLHttpRequest();
         xmlHttp.onreadystatechange = function(){
           if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
             lastFive.push(xmlHttp.responseText);
             lastFive.splice(0, 1);
-            let str = lastFive.join(" ");
-            document.getElementById("voltage").innerHTML = str;
+            updateBody();
+            //let str = lastFive.join(" ");
+            //document.getElementById("voltage").innerHTML = str;
           }
         };
 
@@ -22,8 +76,15 @@
       }, 1000);
     </script>
   </head>
-  <body>
-    <h1>Windmill Voltage</h1>
-    <p id="voltage"></p>
+  <body onload="ready()">
+    <h1>Voltage over time</h1>
+    <table>
+      <tr><td>4 seconds ago</td><td id="v4"></td></tr>
+      <tr><tr><td>3 seconds ago</td><td id="v3"></td></tr>
+      <tr><td>2 seconds ago</td><td id="v2"></td></tr>
+      <tr><td>1 second ago</td><td id="v1"></td></tr>
+      <tr><td>Just now</td><td id="v0"></td></tr>
+    </table>
+    <canvas id="graph" width="700" height="600"></canvas>
   </body>
 </html>

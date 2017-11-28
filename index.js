@@ -18,7 +18,7 @@ port.on("readable", function (data){
   for (let i = 0; i < buffer.length; i++){
     if (buffer[i] === "\n"){
       latestV = buffer.substr(0,i);
-      console.log(latestV);
+      //console.log(latestV);
       buffer = buffer.substr(i+1,buffer.length);
     }
   }
