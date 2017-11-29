@@ -8,56 +8,53 @@
       var voltage = 0;
       var lastFive = [0, 0, 0, 0, 0];
       var canvas;
+      var chart;
 
       function ready(){
         canvas = document.getElementById("graph").getContext("2d");
-        canvas.fillStyle = "white";
-        canvas.strokeStyle = "black";
-        canvas.lineWidth = 3;
-      }
-
-      function graph(){
-        canvas.fillRect(0, 0, 510, 510);
-
-        canvas.lineWidth = 3;
-        canvas.beginPath();
-        canvas.moveTo(10, 500-(Number(lastFive[0])*100));
-        for(let i = 1; i < lastFive.length; i++){
-          canvas.lineTo(10+(100*i), 500-((Number(lastFive[i])||0)*100));
-        }
-        canvas.stroke();
-
-        canvas.lineWidth = 1;
-        canvas.beginPath();
-        canvas.moveTo(10, 500);
-        canvas.lineTo(10, 10);
-        canvas.stroke();
-        canvas.beginPath();
-        canvas.moveTo(10, 500);
-        canvas.lineTo(510, 500);
-        canvas.stroke();
-
-        for (let i = 1; i < 5; i++){
-          //canvas.beginPath();
-          let x = 10+(100*i)
-          canvas.moveTo(x, 505);
-          canvas.lineTo(x, 495);
-          canvas.stroke();
-        }
-
-        for (let i = 0; i < 5; i++){
-          let y = 500-(100*i);
-          canvas.moveTo(5, y);
-          canvas.lineTo(15, y);
-          canvas.stroke();
-        }
+        chart = new Chart(canvas, {
+          type: 'line',
+          data: {
+            labels: [-4, -3, -2, -1, 0],
+            datasets: [{
+              data: lastFive,
+              label: "voltage",
+              lineTension: 0
+            }]
+          },
+          options: {
+            scales: {
+              yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: "Voltage (V)"
+                },
+                ticks: {
+                  beginAtZero: true
+                }
+              }],
+              xAxes: [{
+                ticks: {
+                  beginAtZero: true
+                },
+                scaleLabel: {
+                  display: true,
+                  labelString: "Time since recording (s)"
+                }
+              }]
+            },
+            animation: {
+              duration: 0
+            }
+          }
+        });
       }
 
       function updateBody(){
         for (let i = 0; i < 5; i++){
           document.getElementById("v"+String(4-i)).innerHTML = lastFive[i];
         }
-        graph();
+        chart.update();
       }
 
       setInterval(function(){
@@ -86,6 +83,6 @@
       <tr><td>1 second ago</td><td id="v1"></td></tr>
       <tr><td>Just now</td><td id="v0"></td></tr>
     </table>
-    <canvas id="graph" width="700" height="600"></canvas>
+    <canvas id="graph" width="500" height="200"></canvas>
   </body>
 </html>
