@@ -5,20 +5,28 @@
     <script type="text/javascript">
       "use strict";
       var url = "/voltage";
-      var voltage = 0;
-      var lastFive = [0, 0, 0, 0, 0];
       var canvas;
       var chart;
+      var recentData = [];
+
+      function Point(x, y){
+        this.x = x;
+        this.y = y;
+      }
+
+      let now = Date.now();
+      for (let i = 0; i < 4; i++)  recentData.push(new Point(now,0));
+
+      const expireTime = 7000;
 
       function ready(){
         canvas = document.getElementById("graph").getContext("2d");
         chart = new Chart(canvas, {
-          type: 'line',
+          type: 'scatter',
           data: {
-            labels: [-4, -3, -2, -1, 0],
             datasets: [{
-              data: lastFive,
-              label: "voltage",
+              data: recentData,
+              label: "Voltage",
               lineTension: 0
             }]
           },
@@ -35,12 +43,14 @@
               }],
               xAxes: [{
                 ticks: {
-                  beginAtZero: true
+                  beginAtZero: false
                 },
                 scaleLabel: {
                   display: true,
-                  labelString: "Time since recording (s)"
-                }
+                  labelString: "Unix time (s)"
+                },
+                type: "linear",
+                display: false
               }]
             },
             animation: {
@@ -52,7 +62,8 @@
 
       function updateBody(){
         for (let i = 0; i < 5; i++){
-          document.getElementById("v"+String(4-i)).innerHTML = lastFive[i];
+          if (recentData[i]) document.getElementById("v"+String(4-i)).innerHTML = recentData[i].y;
+          else document.getElementById("v"+String(4-i)).innerHTML = "0";
         }
         chart.update();
       }
@@ -61,8 +72,9 @@
         let xmlHttp = new XMLHttpRequest();
         xmlHttp.onreadystatechange = function(){
           if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
-            lastFive.push(xmlHttp.responseText);
-            lastFive.splice(0, 1);
+            let data = JSON.parse(xmlHttp.responseText)
+            if(recentData[0] && data.time > recentData[recentData.length-1].x) recentData.push(new Point(data.time, data.voltage));
+            if (recentData[0] && Date.now() - recentData[0].x > expireTime) recentData.splice(0, 1);
             updateBody();
             //let str = lastFive.join(" ");
             //document.getElementById("voltage").innerHTML = str;

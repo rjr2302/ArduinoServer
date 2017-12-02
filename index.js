@@ -3,7 +3,7 @@
 const SerialPort = require("serialport");
 const http = require("http");
 const fs = require("fs");
-var latestV = "0";
+var latest = {voltage:0, time:Date.now()};
 var buffer = "";
 
 //console.log(process.argv)
@@ -21,9 +21,11 @@ port.on("readable", function (data){
   buffer += read;
   for (let i = 0; i < buffer.length; i++){
     if (buffer[i] === "\n"){
-      latestV = buffer.substr(0,i);
-      if(printVoltage) console.log(latestV);
+      let v = buffer.substr(0,i);
+      latest = {voltage:Number(v)||0, time:Date.now()};
+      if(printVoltage) console.log(v);
       buffer = buffer.substr(i+1,buffer.length);
+      break;
     }
   }
 });
@@ -47,9 +49,9 @@ const server = http.createServer(function(request, response){
     });
   }
   else if (file === "/voltage") {
-    response.setHeader("Content-Type", "text/plain");
+    response.setHeader("Content-Type", "text/json");
     response.statusCode = 200;
-    response.write(String(latestV));
+    response.write(JSON.stringify(latest));
     //console.log(request.headers);
     response.end();
   }
